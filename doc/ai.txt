@@ -14,6 +14,16 @@ for astrbot:
 - add all result in architecture.md in doc folder
 
 
+for Model Context Protocol(MCP) support:
+- which which lib/package it use?
+- does it support google a2a? how
+- update architecture.md in doc folder with result
+
+for Google agent-to-agent protocol (a2a) support:
+ 1. does it support? why? how to use it in the project?
+ 2. update architecture.md in doc folder with result
+
+
 
 complete refactor operations in lib/functions.py step by step, the purpose is to break the large file to small pieces of code:
 1. extract function web_interface() to new file web_ui.py

@@ -50,16 +50,46 @@ The project has a first-class plugin system. Based on the `plugin_group` configu
 3.  **Dependency Management**: The system can install Python dependencies required by plugins using `pip`, with configurable repository URLs for flexibility in different environments.
 4.  **Registration**: Enabled plugins are loaded and registered with the core application, allowing them to hook into various parts of the bot's lifecycle, such as message processing or adding new commands.
 
-## 3. Multi-Platform Support (MCP)
+## 3. Model Context Protocol (MCP) Support
 
-The project is designed to be a "Multi-Chat Platform" (MCP) bot. The `platform_group` is the key to this capability. The architecture employs an adapter pattern:
+The project integrates with the **Model Context Protocol (MCP)**, a standardized way to extend the capabilities of AI agents by allowing them to securely access external tools and services. This is a distinct feature from the project's multi-platform support for different chat clients.
 
--   **Core Logic**: A central application logic handles events like receiving a message, processing it through the AI agent, and generating a response.
--   **Platform Adapters**: For each supported platform (e.g., Telegram, Lark), there is a specific adapter. This adapter is responsible for:
-    -   Connecting to the platform's API.
-    -   Translating incoming platform-specific events into a common format for the core logic.
-    -   Translating the core logic's response back into a format the platform's API can understand (e.g., sending a message, adding an emoji reaction).
--   **Configuration**: The `platform_specific` settings allow for fine-tuning the behavior on each platform without changing the core bot logic.
+### MCP Core Concepts
+
+-   **MCP Library**: The project uses the `mcp>=1.8.0` Python library to implement MCP support. This library provides the necessary components to connect to and interact with MCP servers.
+-   **MCP Servers**: These are external services that expose a set of tools through the Model Context Protocol. The chatbot can connect to these servers to use the tools they provide.
+-   **Tool Integration**: Once connected to an MCP server, the tools provided by that server become available to the AI agent. The agent can then call these tools to perform actions, such as searching a database, calling an API, or accessing proprietary knowledge.
+
+### Implementation Details
+
+-   **Configuration**: MCP servers are configured in a `mcp_server.json` file located in the `data` directory. This file contains the connection details for each server, such as the server address, transport protocol, and any necessary authentication credentials. The dashboard provides a UI to manage these configurations.
+-   **Connection Types**: The system supports multiple transport protocols for connecting to MCP servers, including:
+    -   `stdio`: For running MCP servers as local subprocesses.
+    -   `sse`: Server-Sent Events for connecting to remote servers over HTTP.
+    -   `streamablehttp`: Another HTTP-based protocol for streaming data.
+-   **Service Discovery**: The application includes features to discover and integrate with MCP services from third-party providers. Currently, it supports:
+    -   **ModelScope**: Syncing MCP server configurations from the ModelScope platform.
+    -   **Baidu AI Search**: The `web_searcher` package can automatically configure and connect to a Baidu AI Search MCP server.
+
+### Google Agent-to-Agent (A2A) Protocol Support
+
+The project **does not support** the Google Agent-to-Agent (A2A) protocol.
+
+**Reasoning:**
+
+The current architecture is designed around a single, powerful AI agent that can be extended with tools via the Model Context Protocol (MCP). The core design does not include concepts of multi-agent systems or direct communication between different AI agents, which is the primary purpose of an agent-to-agent protocol.
+
+The project's focus is on connecting a single agent to various user-facing platforms (like Telegram, Lark, etc.) and enhancing its capabilities with external tools and knowledge bases. There are no components or libraries in the current codebase that implement or interact with Google's A2A protocol or related services like Vertex AI Agent Engine for multi-agent orchestration.
+
+**How to implement such a feature:**
+
+Supporting the Google A2A protocol would require a significant architectural change, including:
+1.  Integrating a library that implements the A2A protocol.
+2.  Developing a system for discovering and managing multiple agents.
+3.  Adding a routing or dispatching mechanism to direct user requests or tasks to the appropriate agent.
+4.  Potentially integrating with Google Cloud services like Vertex AI for agent deployment and management.
+
+As of now, these features are not part of the project.
 
 ## 4. AI Model Provider Support
 
