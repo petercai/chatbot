@@ -19,6 +19,10 @@ for Model Context Protocol(MCP) support:
 - does it support google a2a? how
 - update architecture.md in doc folder with result
 
+what're inside astrbot/cli?
+ 1. details of all features in this folder?
+ 2. update architecture.md in doc folder with result
+
 for Google agent-to-agent protocol (a2a) support:
  1. does it support? why? how to use it in the project?
  2. update architecture.md in doc folder with result

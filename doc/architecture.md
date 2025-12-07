@@ -193,7 +193,31 @@ The components work together in a clear flow:
 5.  It then subscribes to the **State Management** store to get the current configuration values and renders the complete, data-filled form for the user.
 6.  When a user changes a setting and saves, the new data flows back through the **State Management** store to the **API Client**, which sends it to the backend.
 
-## 10. Web Server and API Endpoints
+## 10. CLI (Command Line Interface)
+
+The `astrbot/cli` directory contains the implementation of the command-line interface for AstrBot. It provides a set of commands for managing the bot from the terminal.
+
+### Features
+
+- **`init`**: Initializes the AstrBot environment. This command creates the necessary directories (`data`, `data/config`, `data/plugins`, `data/temp`) and a `.astrbot` file to mark the root directory.
+
+- **`conf`**: Manages the configuration of AstrBot.
+    - `set <key> <value>`: Sets a configuration option.
+    - `get [key]`: Retrieves the value of a specific configuration option or lists all available options.
+
+- **`plug`**: Manages AstrBot plugins.
+    - `new <name>`: Creates a new plugin from a template.
+    - `list [--all]`: Lists installed and available plugins.
+    - `install <name>`: Installs a plugin.
+    - `remove <name>`: Uninstalls a plugin.
+    - `update [name]`: Updates a specific plugin or all plugins that need updating.
+    - `search <query>`: Searches for plugins.
+
+- **`run`**: Starts the AstrBot application.
+    - `--reload`: Enables automatic reloading of plugins when changes are detected.
+    - `--port <port>`: Sets the port for the AstrBot dashboard.
+
+## 11. Web Server and API Endpoints
 
 The `astrabot` backend application includes an embedded web server to handle requests from the web dashboard and external platform webhooks.
 
