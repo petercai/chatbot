@@ -1,0 +1,88 @@
+analysise and document the architecture of this project:
+- how many components it has, what're their responsibilities and relationship
+- how it support plugins
+- how it mcp
+- how it support different ai model providers
+- which lib for ui
+- which lib for api
+- the default database it used
+- save all result in architecture.md in doc folder
+
+for astrbot:
+- which web server it launch
+- where api endpoints defined to handle client ui request
+- add all result in architecture.md in doc folder
+
+
+
+complete refactor operations in lib/functions.py step by step, the purpose is to break the large file to small pieces of code:
+1. extract function web_interface() to new file web_ui.py
+2. extract functions convert_ebook() and convert_ebook_batch() to new file headless_processor.py
+3. all the shared dependencies still need to stay in functions.py
+4. update all impacted python files when required
+
+
+
+complete refactor operations in lib/functions.py step by step, the purpose is to break the large file to small pieces of code:
+1. extract function convert_chapters2audio() to file epub.py
+2. move sole deps to the same file, but the shared dependencies still need to stay in functions.py
+3. update all impacted python files when required
+
+move combine_audio_chapters() in functions.py to file ebook_audio.py with refactoring:
+- move sole deps to the same file
+- update all impacted python files when required
+
+move all nested functions inside launch() to WebUI class method
+- only update impacted reference code inside launch() for WebUI
+- don't change any other existing logic
+- don't try extra refactoring
+
+
+
+refactor epub.py to a class EPubProcessor 
+- convert2epub() is class method
+- update all impacted python files when required
+
+move extract_custom_model() in functions.py into class EbookAudio in ebook_audio.py
+- update all impacted python files when required
+- don't change existing logic
+- try best to add detailed docstring and inline comments
+
+
+move functions below in functions.py into class EPubProcessor
+- filter_chapter
+- get_sentences
+- get_chapters
+- get_cover
+- get_ebook_title
+
+
+add document for this method with detailed inline comments
+
+1. add document for this class and constructor
+2. list all session values required in the class
+
+move all nested functions inside launch() to WebUI class method
+- only update impacted reference code inside launch() for WebUI
+- don't change any other existing logic
+- don't try extra refactoring
+
+background:
+if input file is epub format, no need to convert
+enhancement: 
+- check input_file. if it's epub format, directly assign it to epub_path and return 
+- don't change any other existing logic
+- update docstring too
+
+
+
+background:
+if input file is epub format, no need to convert
+
+enhance the app to support offline_mode for stanza, hf_hub_download, torch.load(), etc.
+- add offline_mode arguments at the end of options in app.py main() so that won't impact existing logic
+- update offline_mode to session
+- check offline_mode value from session for the libs calls, such as tts.load_checkpoint(), torch.load(), stanza.download(), ehance the existing call to read them from cache
+- if there is fialure cannot move forward, print out the details about failed on wich file and its expected location
+- only need to check py files in /lib folder
+- don't change existing logic
