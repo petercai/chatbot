@@ -217,7 +217,7 @@ The `astrbot/cli` directory contains the implementation of the command-line inte
     - `--reload`: Enables automatic reloading of plugins when changes are detected.
     - `--port <port>`: Sets the port for the AstrBot dashboard.
 
-## 11. Web Server and API Endpoints
+## 10. Web Server and API Endpoints
 
 The `astrabot` backend application includes an embedded web server to handle requests from the web dashboard and external platform webhooks.
 
@@ -226,6 +226,14 @@ The `astrabot` backend application includes an embedded web server to handle req
 The project launches its own web server using **Quart**, a modern Python ASGI framework with a Flask-like API. This is explicitly defined in `astrbot/dashboard/server.py`. The choice of an ASGI framework like Quart is crucial for efficiently handling asynchronous operations, such as real-time log streaming and interactive chat features provided by the dashboard.
 
 The server is initialized within the `AstrBotDashboard` class, which also handles pre-flight checks like ensuring the configured port is not already in use.
+
+### Frontend Serving
+
+The Quart server is also responsible for serving the Vue.js-based frontend application. The frontend code is located in the `dashboard` directory. When the Vue.js application is built, it generates a `dist` directory containing the compiled static assets (HTML, CSS, JavaScript).
+
+The Quart application is configured to serve these static files. The `AstrBotDashboard` class sets the `static_folder` to the path of the `dist` directory (either `data/dist` or a user-provided `webui_dir`). The `static_url_path` is set to `/`, which means that the root of the web server maps to the `dist` directory.
+
+When a user accesses the root URL of the web server, Quart serves the `index.html` file from the `dist` directory. The browser then parses this HTML file and makes requests for the other static assets (CSS, JavaScript, etc.), which are also served by Quart. This allows the backend and frontend to be served from the same port, simplifying deployment.
 
 ### API Endpoint Definitions
 
@@ -237,3 +245,145 @@ Key route components and their responsibilities include:
 -   **Plugin Routing**: A special dynamic route, `/api/plug/<path:subpath>`, is defined by the `srv_plug_route` method. This acts as a gateway for web APIs exposed by installed plugins, allowing them to register and serve their own frontend-facing endpoints without modifying the core application code.
 -   **Webhook Handling**: The `PlatformRoute` is responsible for handling incoming webhooks from various messaging platforms, acting as the primary entry point for external events into the system.
 -   **Static File Serving**: The Quart application is also configured to serve the static files (HTML, CSS, JavaScript) for the frontend dashboard, making it a self-contained web application.
+
+### API Endpoint List
+
+Here is a comprehensive list of all the API endpoints available in the application, categorized by their respective route files:
+
+**Update Routes (`update.py`)**
+- `GET /api/update/check`: Checks for new versions of the application and dashboard.
+- `GET /api/update/releases`: Retrieves a list of available releases.
+- `POST /api/update/do`: Performs an update of the application.
+- `POST /api/update/dashboard`: Updates the dashboard to the latest version.
+- `POST /api/update/pip-install`: Installs a Python package using pip.
+- `POST /api/update/migration`: Performs a database migration.
+
+**Statistics Routes (`stat.py`)**
+- `GET /api/stat/get`: Retrieves various statistics about the application.
+- `GET /api/stat/version`: Gets the current version of the application and dashboard.
+- `GET /api/stat/start-time`: Gets the start time of the application.
+- `POST /api/stat/restart-core`: Restarts the core application.
+- `POST /api/stat/test-ghproxy-connection`: Tests the connection to a GitHub proxy.
+
+**Plugin Routes (`plugin.py`)**
+- `GET /api/plugin/get`: Retrieves a list of installed plugins.
+- `POST /api/plugin/install`: Installs a plugin from a repository URL.
+- `POST /api/plugin/install-upload`: Installs a plugin from an uploaded file.
+- `POST /api/plugin/update`: Updates a specific plugin.
+- `POST /api/plugin/update-all`: Updates all plugins.
+- `POST /api/plugin/uninstall`: Uninstalls a plugin.
+- `GET /api/plugin/market_list`: Retrieves a list of plugins from the marketplace.
+- `POST /api/plugin/off`: Deactivates a plugin.
+- `POST /api/plugin/on`: Activates a plugin.
+- `POST /api/plugin/reload`: Reloads a specific plugin.
+- `GET /api/plugin/readme`: Retrieves the README file for a plugin.
+
+**Configuration Routes (`config.py`)**
+- `POST /api/config/abconf/new`: Creates a new AstrBot configuration file.
+- `GET /api/config/abconf`: Retrieves a specific AstrBot configuration file.
+- `GET /api/config/abconfs`: Retrieves a list of all AstrBot configuration files.
+- `POST /api/config/abconf/delete`: Deletes an AstrBot configuration file.
+- `POST /api/config/abconf/update`: Updates the information of an AstrBot configuration file.
+- `GET /api/config/umo_abconf_routes`: Retrieves the UMOP configuration routing table.
+- `POST /api/config/umo_abconf_route/update_all`: Updates the entire UMOP configuration routing table.
+- `POST /api/config/umo_abconf_route/update`: Updates a single route in the UMOP configuration routing table.
+- `POST /api/config/umo_abconf_route/delete`: Deletes a route from the UMOP configuration routing table.
+- `GET /api/config/get`: Retrieves the main application configuration.
+- `GET /api/config/default`: Retrieves the default application configuration.
+- `POST /api/config/astrbot/update`: Updates the main application configuration.
+- `POST /api/config/plugin/update`: Updates the configuration for a specific plugin.
+- `POST /api/config/platform/new`: Adds a new platform configuration.
+- `POST /api/config/platform/update`: Updates an existing platform configuration.
+- `POST /api/config/platform/delete`: Deletes a platform configuration.
+- `GET /api/config/platform/list`: Retrieves a list of all platform configurations.
+- `POST /api/config/provider/new`: Adds a new provider configuration.
+- `POST /api/config/provider/update`: Updates an existing provider configuration.
+- `POST /api/config/provider/delete`: Deletes a provider configuration.
+- `GET /api/config/provider/check_one`: Checks the status of a single provider.
+- `GET /api/config/provider/list`: Retrieves a list of provider configurations.
+- `GET /api/config/provider/model_list`: Retrieves a list of available models for a provider.
+- `POST /api/config/provider/get_embedding_dim`: Gets the embedding dimension for a provider.
+
+**Log Routes (`log.py`)**
+- `GET /api/live-log`: Streams live logs from the application.
+- `GET /api/log-history`: Retrieves the history of logs.
+
+**File Routes (`file.py`)**
+- `GET /api/file/<file_token>`: Serves a file using a file token.
+
+**Authentication Routes (`auth.py`)**
+- `POST /api/auth/login`: Authenticates a user and returns a JWT.
+- `POST /api/auth/account/edit`: Edits the user's account information.
+
+**Chat Routes (`chat.py`)**
+- `POST /api/chat/send`: Sends a message to the chatbot.
+- `GET /api/chat/new_session`: Creates a new chat session.
+- `GET /api/chat/sessions`: Retrieves a list of chat sessions.
+- `GET /api/chat/get_session`: Retrieves the details of a specific chat session.
+- `GET /api/chat/delete_session`: Deletes a chat session.
+- `POST /api/chat/update_session_display_name`: Updates the display name of a chat session.
+- `GET /api/chat/get_file`: Retrieves a file from the chat.
+- `GET /api/chat/get_attachment`: Retrieves an attachment from the chat.
+- `POST /api/chat/post_file`: Uploads a file to the chat.
+
+**Tools Routes (`tools.py`)**
+- `GET /api/tools/mcp/servers`: Retrieves a list of MCP servers.
+- `POST /api/tools/mcp/add`: Adds a new MCP server.
+- `POST /api/tools/mcp/update`: Updates an MCP server.
+- `POST /api/tools/mcp/delete`: Deletes an MCP server.
+- `POST /api/tools/mcp/test`: Tests the connection to an MCP server.
+- `GET /api/tools/list`: Retrieves a list of available tools.
+- `POST /api/tools/toggle-tool`: Activates or deactivates a tool.
+- `POST /api/tools/mcp/sync-provider`: Synchronizes MCP providers.
+
+**Conversation Routes (`conversation.py`)**
+- `GET /api/conversation/list`: Retrieves a list of conversations.
+- `POST /api/conversation/detail`: Retrieves the details of a conversation.
+- `POST /api/conversation/update`: Updates a conversation.
+- `POST /api/conversation/delete`: Deletes a conversation.
+- `POST /api/conversation/update_history`: Updates the history of a conversation.
+
+**Session Management Routes (`session_management.py`)**
+- `GET /api/session/list-rule`: Lists all session rules.
+- `POST /api/session/update-rule`: Updates a session rule.
+- `POST /api/session/delete-rule`: Deletes a session rule.
+- `POST /api/session/batch-delete-rule`: Deletes multiple session rules.
+- `GET /api/session/active-umos`: Lists all active UMOs.
+
+**Persona Routes (`persona.py`)**
+- `GET /api/persona/list`: Lists all personas.
+- `POST /api/persona/detail`: Retrieves the details of a persona.
+- `POST /api/persona/create`: Creates a new persona.
+- `POST /api/persona/update`: Updates a persona.
+- `POST /api/persona/delete`: Deletes a persona.
+
+**Text-to-Image (T2I) Routes (`t2i.py`)**
+- `GET /api/t2i/templates`: Lists all T2I templates.
+- `GET /api/t2i/templates/active`: Retrieves the active T2I template.
+- `POST /api/t2i/templates/create`: Creates a new T2I template.
+- `POST /api/t2i/templates/reset_default`: Resets the default T2I template.
+- `POST /api/t2i/templates/set_active`: Sets the active T2I template.
+- `GET /api/t2i/templates/<name>`: Retrieves a specific T2I template.
+- `PUT /api/t2i/templates/<name>`: Updates a specific T2I template.
+- `DELETE /api/t2i/templates/<name>`: Deletes a specific T2I template.
+
+**Knowledge Base Routes (`knowledge_base.py`)**
+- `GET /api/kb/list`: Lists all knowledge bases.
+- `POST /api/kb/create`: Creates a new knowledge base.
+- `GET /api/kb/get`: Retrieves a specific knowledge base.
+- `POST /api/kb/update`: Updates a knowledge base.
+- `POST /api/kb/delete`: Deletes a knowledge base.
+- `GET /api/kb/stats`: Retrieves statistics for a knowledge base.
+- `GET /api/kb/document/list`: Lists all documents in a knowledge base.
+- `POST /api/kb/document/upload`: Uploads a document to a knowledge base.
+- `POST /api/kb/document/upload/url`: Uploads a document from a URL to a knowledge base.
+- `GET /api/kb/document/upload/progress`: Retrieves the progress of a document upload.
+- `GET /api/kb/document/get`: Retrieves a specific document.
+- `POST /api/kb/document/delete`: Deletes a document.
+- `GET /api/kb/chunk/list`: Lists all chunks in a document.
+- `POST /api/kb/chunk/delete`: Deletes a chunk.
+- `POST /api/kb/retrieve`: Retrieves information from a knowledge base.
+
+**Platform Routes (`platform.py`)**
+- `GET, POST /api/platform/webhook/<webhook_uuid>`: The unified webhook callback endpoint.
+- `GET /api/platform/stats`: Retrieves statistics for all platforms.

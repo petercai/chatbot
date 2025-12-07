@@ -11,7 +11,13 @@ analysise and document the architecture of this project:
 for astrbot:
 - which web server it launch
 - where api endpoints defined to handle client ui request
-- add all result in architecture.md in doc folder
+- update architecture.md in doc folder with result
+
+
+for astrbot quart web server:
+ 1.how the project leverage quart to serve browser request to send vue code in dashboard folder
+ 2.how many api/endpoints or routes the project has
+ 3.update architecture.md in doc folder with result
 
 
 for Model Context Protocol(MCP) support:
